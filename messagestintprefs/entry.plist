@@ -1,0 +1,10 @@
+{
+    entry = {
+	bundle = MessagesTintPrefs;
+	cell = PSLinkCell;
+	detail = MessagesTintPrefsListController;
+	icon = MessagesTintPrefs.png;
+	isController = 1;
+	label = MessagesTint;
+    };
+}

@@ -1,0 +1,11 @@
+Package: com.joemerlino.messagestint
+Name: MessagesTint
+Depends: mobilesubstrate, firmware (>= 8.0)
+Conflicts: xyz.mstg.mezode
+Section: Tweaks
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: Tint conversations navbar with latest message status.
+Maintainer: Joe Merlino
+Author: Joe Merlino
+Section: Tweaks
