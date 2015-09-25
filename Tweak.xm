@@ -6,7 +6,6 @@
 
 UIColor *iMessageColor;
 UIColor *SMSColor;
-UIColor *grayColor;
 
 @interface CKNavigationBar : UINavigationBar
 @end
