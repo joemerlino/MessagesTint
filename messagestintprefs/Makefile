@@ -9,10 +9,10 @@ MessagesTintPrefs_INSTALL_PATH = /Library/PreferenceBundles
 MessagesTintPrefs_FRAMEWORKS = UIKit
 MessagesTintPrefs_PRIVATE_FRAMEWORKS = Preferences
 MessagesTintPrefs_LIBRARIES = colorpicker
+
+
 include $(THEOS_MAKE_PATH)/bundle.mk
 
-THEOS_PACKAGE_BASE_VERSION = 0.0.2
-_THEOS_INTERNAL_PACKAGE_VERSION = 0.0.2
 
 internal-stage::
 	$(ECHO_NOTHING)mkdir -p $(THEOS_STAGING_DIR)/Library/PreferenceLoader/Preferences$(ECHO_END)

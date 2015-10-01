@@ -1,5 +1,12 @@
 #import <UIKit/UIKit.h>
-#import <ChatKit/CKComposition.h>
+//#import <ChatKit/CKComposition.h>
+#import "libcolorpicker.h" 
+
+
+@interface CKComposition : NSObject
+@property (nonatomic,copy) NSAttributedString * text;
+@property (nonatomic,readonly) BOOL hasContent;
+@end
 
 @interface UIApplication (Private)
 -(id)_rootViewControllers;
@@ -7,6 +14,8 @@
 
 UIColor *iMessageColor;
 UIColor *SMSColor;
+UIColor *failedColor;
+UIColor *unsentColor;
 
 @interface CKNavigationBar : UINavigationBar
 @end
@@ -66,16 +75,16 @@ CKComposition * r;
 		activeNav.navigationBar.barStyle = 1;
 		[activeBar setTintColor:UIColor.whiteColor];
 		[activeNav.navigationBar setTintColor:UIColor.whiteColor];
-		[activeBar setBarTintColor:UIColor.redColor];
-		[activeNav.navigationBar setBarTintColor:UIColor.redColor];
+		[activeBar setBarTintColor:failedColor];
+		[activeNav.navigationBar setBarTintColor:failedColor];
 	}
 	else if(unsent != nil){
 		activeBar.barStyle = 1;
 		activeNav.navigationBar.barStyle = 1;
 		[activeBar setTintColor:UIColor.whiteColor];
 		[activeNav.navigationBar setTintColor:UIColor.whiteColor];
-		[activeBar setBarTintColor:UIColor.orangeColor];
-		[activeNav.navigationBar setBarTintColor:UIColor.orangeColor];
+		[activeBar setBarTintColor:unsentColor];
+		[activeNav.navigationBar setBarTintColor:unsentColor];
 	}
 	else{
 		activeBar.barStyle = UIBarStyleDefault;
@@ -94,8 +103,8 @@ CKComposition * r;
 		activeNav.navigationBar.barStyle = 1;
 		[activeBar setTintColor:UIColor.whiteColor];
 		[activeNav.navigationBar setTintColor:UIColor.whiteColor];
-		[activeBar setBarTintColor:UIColor.redColor];
-		[activeNav.navigationBar setBarTintColor:UIColor.redColor];
+		[activeBar setBarTintColor:failedColor];
+		[activeNav.navigationBar setBarTintColor:failedColor];
 	}
 	else if(!transcript){
 		inConversation = true;
@@ -161,8 +170,8 @@ CKComposition * r;
 	failed = %orig;
 	if(failed && first){
 		first = NO; 
-		[activeBar setBarTintColor:UIColor.redColor];
-		[activeNav.navigationBar setBarTintColor:UIColor.redColor];
+		[activeBar setBarTintColor:failedColor];
+		[activeNav.navigationBar setBarTintColor:failedColor];
 	}
 	else if(!failed && !first){
 		first = YES; 
@@ -187,7 +196,7 @@ CKComposition * r;
  -(UIView *)touchableView{
  	keyboard = %orig;
  	if (failed)
-		[keyboard setBackgroundColor:UIColor.redColor];
+		[keyboard setBackgroundColor:failedColor];
 	else if (activeButton)
 		[keyboard setBackgroundColor:iMessageColor];
 	else
@@ -228,8 +237,14 @@ static void PreferencesCallback(CFNotificationCenterRef center, void *observer, 
 	BOOL square = ([prefs objectForKey:@"square"] ? [[prefs objectForKey:@"square"] boolValue] : NO);
 	NSLog(@"[MessagesTint] %d", enabled);   
     if (enabled) {
-    	iMessageColor = [UIColor colorWithRed:0 green:0.478431 blue:1 alpha:1];
-		SMSColor = [UIColor colorWithRed:0 green:0.8 blue:0.278431 alpha:1];
+    	//iMessageColor = [UIColor colorWithRed:0 green:0.478431 blue:1 alpha:1];
+	//SMSColor = [UIColor colorWithRed:0 green:0.8 blue:0.278431 alpha:1];
+
+    	iMessageColor = LCPParseColorString([prefs objectForKey:@"iMessageC"], @"#007AFF");
+	SMSColor = LCPParseColorString([prefs objectForKey:@"smsC"], @"#00CC47");
+	unsentColor = LCPParseColorString([prefs objectForKey:@"unsentC"], @"#FF8000");
+	failedColor = LCPParseColorString([prefs objectForKey:@"failedC"], @"#FF0000");
+
         %init(MOD);
         if(tint)
         	%init(KEY);

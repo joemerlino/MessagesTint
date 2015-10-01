@@ -9,6 +9,8 @@ TWEAK_NAME = MessagesTint
 MessagesTint_FILES = Tweak.xm
 MessagesTint_FRAMEWORKS = UIKit
 MessagesTint_LIBRARIES = colorpicker
+THEOS_PACKAGE_BASE_VERSION = 0.0.2
+_THEOS_INTERNAL_PACKAGE_VERSION = 0.0.2
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
