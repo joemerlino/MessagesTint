@@ -1,4 +1,5 @@
 #import <UIKit/UIKit.h>
+#import <ChatKit/CKComposition.h>
 
 @interface UIApplication (Private)
 -(id)_rootViewControllers;
@@ -13,12 +14,15 @@ UIColor *SMSColor;
 CKNavigationBar *activeBar;
 UIProgressView *progress;
 UINavigationController *activeNav;
+UIView *keyboard;
 
 BOOL inConversation = false;
 BOOL failed = NO;
 BOOL first = YES;
 BOOL transcript = YES;
 BOOL activeButton;
+NSAttributedString *unsent;
+CKComposition * r;
 
 @interface NSUserDefaults (Tweak_Category)
 - (id)objectForKey:(NSString *)key inDomain:(NSString *)domain;
@@ -55,7 +59,6 @@ BOOL activeButton;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
-	NSLog(@"[MessagesTint] viewWillDisappear %d", failed);
 	%orig;
 	inConversation = false;
 	if(failed){	
@@ -65,6 +68,14 @@ BOOL activeButton;
 		[activeNav.navigationBar setTintColor:UIColor.whiteColor];
 		[activeBar setBarTintColor:UIColor.redColor];
 		[activeNav.navigationBar setBarTintColor:UIColor.redColor];
+	}
+	else if(unsent != nil){
+		activeBar.barStyle = 1;
+		activeNav.navigationBar.barStyle = 1;
+		[activeBar setTintColor:UIColor.whiteColor];
+		[activeNav.navigationBar setTintColor:UIColor.whiteColor];
+		[activeBar setBarTintColor:UIColor.orangeColor];
+		[activeNav.navigationBar setBarTintColor:UIColor.orangeColor];
 	}
 	else{
 		activeBar.barStyle = UIBarStyleDefault;
@@ -87,7 +98,6 @@ BOOL activeButton;
 		[activeNav.navigationBar setBarTintColor:UIColor.redColor];
 	}
 	else if(!transcript){
-		NSLog(@"[MessagesTint] viewWillAppear %d", failed);
 		inConversation = true;
 		activeBar.barStyle = 1;
 		activeNav.navigationBar.barStyle = 1;
@@ -114,7 +124,6 @@ BOOL activeButton;
 %hook CKMessagesController
 -(void)showConversation:(id)conversation animate:(BOOL)animate {
 	%orig;
-	NSLog(@"[MessagesTint] showConversation");
 	inConversation = true;
 	activeBar.barStyle = 1;
 	activeNav.navigationBar.barStyle = 1;
@@ -130,10 +139,17 @@ BOOL activeButton;
 }
 %end
 
+%hook CKMessageEntryView
+- (CKComposition *)composition { 
+	r = %orig; 
+	unsent = r.text;
+	return r; 
+}
+%end
+
 %hook CKConversation
 
 - (BOOL)sendButtonColor{
-	NSLog(@"[MessagesTint] color %d", %orig);
 	transcript = NO;
 	activeButton = %orig;
 	return %orig;
@@ -143,17 +159,13 @@ BOOL activeButton;
 %hook CKMessagePartChatItem
 - (BOOL)failed{
 	failed = %orig;
-	NSLog(@"[MessagesTint] failed %d",%orig);
-	
 	if(failed && first){
 		first = NO; 
-		NSLog(@"[MessagesTint] failed %d",%orig);
 		[activeBar setBarTintColor:UIColor.redColor];
 		[activeNav.navigationBar setBarTintColor:UIColor.redColor];
 	}
 	else if(!failed && !first){
 		first = YES; 
-		NSLog(@"[MessagesTint] failed %d",%orig);
 		if (!activeButton) {
 			[activeBar setBarTintColor:SMSColor];
 			[activeNav.navigationBar setBarTintColor:SMSColor];
@@ -168,6 +180,41 @@ BOOL activeButton;
 
 %end
 
+%group KEY
+
+%hook _UIKBCompatInputView
+
+ -(UIView *)touchableView{
+ 	keyboard = %orig;
+ 	if (failed)
+		[keyboard setBackgroundColor:UIColor.redColor];
+	else if (activeButton)
+		[keyboard setBackgroundColor:iMessageColor];
+	else
+		[keyboard setBackgroundColor:SMSColor];
+ 	return keyboard;
+ }
+
+%end 
+
+%end
+
+%group SQUARE
+
+%hook CKColoredBalloonView
+
+-(unsigned long long)balloonCorners {
+	return 0;
+}
+
+-(BOOL)hasTail {
+	return NO;
+}
+
+%end
+
+%end
+
 static void PreferencesCallback(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
 {
 	CFPreferencesAppSynchronize(CFSTR("com.joemerlino.messagestint"));
@@ -177,10 +224,16 @@ static void PreferencesCallback(CFNotificationCenterRef center, void *observer, 
 	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, PreferencesCallback, CFSTR("com.joemerlino.messagestint.preferencechanged"), NULL, CFNotificationSuspensionBehaviorCoalesce);
 	NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/private/var/mobile/Library/Preferences/com.joemerlino.messagestint.plist"];
 	BOOL enabled = ([prefs objectForKey:@"enabled"] ? [[prefs objectForKey:@"enabled"] boolValue] : YES);
+	BOOL tint = ([prefs objectForKey:@"tint"] ? [[prefs objectForKey:@"tint"] boolValue] : NO);
+	BOOL square = ([prefs objectForKey:@"square"] ? [[prefs objectForKey:@"square"] boolValue] : NO);
 	NSLog(@"[MessagesTint] %d", enabled);   
     if (enabled) {
     	iMessageColor = [UIColor colorWithRed:0 green:0.478431 blue:1 alpha:1];
 		SMSColor = [UIColor colorWithRed:0 green:0.8 blue:0.278431 alpha:1];
         %init(MOD);
+        if(tint)
+        	%init(KEY);
+        if(square)
+        	%init(SQUARE);
     }
 }

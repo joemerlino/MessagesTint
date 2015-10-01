@@ -20,9 +20,37 @@
 		</dict>
 		<dict>
 			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.joemerlino.messagestint</string>
+			<key>key</key>
+			<string>tint</string>
+			<key>label</key>
+			<string>Tint keyboard</string>
+			<key>PostNotification</key>
+			<string>com.joemerlino.messagestint.preferencechanged</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.joemerlino.messagestint</string>
+			<key>key</key>
+			<string>square</string>
+			<key>label</key>
+			<string>Square bubbles</string>
+			<key>PostNotification</key>
+			<string>com.joemerlino.messagestint.preferencechanged</string>
+		</dict>
+		<dict>
+			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>footerText</key>
-			<string>Tweak inspired by Mezode, credit: http://github.com/mstg/Mezode</string>
+			<string>Tweak inspired by Mezode                                          Credit: http://github.com/mstg/Mezode</string>
 		</dict>
 		<dict>
 			<key>action</key>
